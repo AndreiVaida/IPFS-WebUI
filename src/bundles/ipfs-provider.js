@@ -6,6 +6,7 @@ import first from 'it-first'
 import last from 'it-last'
 import * as Enum from './enum'
 import { perform } from './task'
+import OrbitDb from 'orbit-db'
 
 /* TODO: restore when  no longer bundle standalone ipld with ipld-explorer
  * context: https://github.com/ipfs/ipld-explorer-components/pull/289
@@ -315,12 +316,25 @@ const writeSetting = (id, value) => {
 /** @type {IPFSService|null} */
 let ipfs = null
 
+/** @type {OrbitDb|null} */
+let orbitDb = null
+
+/** @type {FeedStore|null} */
+let orbitDbFeedStore = null
+
 /**
  * @typedef {typeof extra} Extra
  */
 const extra = {
   getIpfs () {
     return ipfs
+  },
+
+  /**
+   * @returns {FeedStore|null}
+   */
+  getOrbitDb () {
+    return orbitDbFeedStore
   }
 }
 
@@ -438,6 +452,28 @@ const actions = {
         return result
       }
     }),
+
+  /**
+   * @returns {function(Context):Promise<boolean>}
+   */
+  doTryInitOrbitDb: () => async ({ store }) => {
+    try {
+      await store.doInitOrbitDb()
+      return true
+    } catch (_) {
+      return false
+    }
+  },
+  /**
+   * Requires initialized ipfs instance.
+   */
+  doInitOrbitDb: () => perform('ORBITDB_INIT',
+    async () => {
+      orbitDb = await OrbitDb.createInstance(ipfs)
+      orbitDbFeedStore = await orbitDb.feed('repository')
+    }
+  ),
+
   /**
    * @returns {function(Context):Promise<void>}
    */
@@ -476,7 +512,8 @@ const actions = {
         type: ACTIONS.NOTIFY_DISMISSED
       })
       const succeeded = await context.store.doTryInitIpfs()
-      if (succeeded) {
+      const succeeded2 = await context.store.doTryInitOrbitDb()
+      if (succeeded && succeeded2) {
         context.dispatch({
           type: ACTIONS.IPFS_CONNECT_SUCCEED
         })

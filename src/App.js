@@ -22,6 +22,7 @@ import FilesExploreForm from './files/explore-form/FilesExploreForm'
 export class App extends Component {
   static propTypes = {
     doTryInitIpfs: PropTypes.func.isRequired,
+    doTryInitOrbitDb: PropTypes.func.isRequired,
     doUpdateUrl: PropTypes.func.isRequired,
     doUpdateHash: PropTypes.func.isRequired,
     doFilesWrite: PropTypes.func.isRequired,
@@ -33,6 +34,7 @@ export class App extends Component {
 
   componentDidMount () {
     this.props.doTryInitIpfs()
+      .then(_ => this.props.doTryInitOrbitDb())
   }
 
   addFiles = async (filesPromise) => {
@@ -130,6 +132,7 @@ export default connect(
   'doUpdateUrl',
   'doUpdateHash',
   'doTryInitIpfs',
+  'doTryInitOrbitDb',
   'doFilesWrite',
   'doDisableTooltip',
   'selectFilesPathInfo',

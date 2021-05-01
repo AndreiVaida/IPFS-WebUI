@@ -66,14 +66,18 @@ import * as Task from '../task'
  * @template {BundlerContext<State, Spawn<Type, Message, Error, Success, Init>, Ext, Extra>} Context
  *
  * @param {Type} type - Type of the actions this will dispatch.
- * @param {(service:IPFSService, context:Context) => AsyncGenerator<Message, Success, void>} task - Task
+ * @param {(service:IPFSService, context:Context, orbitDbFeedStore: FeedStore) => AsyncGenerator<Message, Success, void>} task - Task
  * @param {Init[]} rest - Optinal initialization parameter.
  * @returns {(context:Context) => Promise<Success>}
  */
 export const spawn = (type, task, ...[init]) => async (context) => {
   const ipfs = context.getIpfs()
+  const orbitDb = context.getOrbitDb()
+
   if (ipfs == null) {
     throw Error('IPFS node was not found')
+  } else if (orbitDb == null) {
+    throw Error('OrbitDB is not initialized')
   } else {
     const spawn = Task.spawn(
       type,
@@ -82,7 +86,7 @@ export const spawn = (type, task, ...[init]) => async (context) => {
        * @returns {AsyncGenerator<Message, Success, void>}}
        */
       async function * (context) {
-        const process = task(ipfs, context)
+        const process = task(ipfs, context, orbitDb)
         while (true) {
           const next = await process.next()
           if (next.done) {

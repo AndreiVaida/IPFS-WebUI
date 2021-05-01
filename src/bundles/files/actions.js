@@ -253,7 +253,7 @@ const actions = () => ({
    * @param {FileStream[]} source
    * @param {string} root
    */
-  doFilesWrite: (source, root) => spawn(ACTIONS.WRITE, async function * (ipfs, { store }) {
+  doFilesWrite: (source, root) => spawn(ACTIONS.WRITE, async function * (ipfs, { store }, orbitDbFeedStore) {
     const files = source
       // Skip ignored files
       .filter($ => !IGNORED_FILES.includes(basename($.path)))
@@ -268,6 +268,7 @@ const actions = () => ({
     yield { entries, progress: 0 }
 
     const { result, progress } = importFiles(ipfs, files)
+    const resultOrbitDb = importFilesToOrbitDB(orbitDbFeedStore, files)
 
     /** @type {null|{uploaded:number, offset:number, name:string}} */
     let status = null
@@ -285,6 +286,7 @@ const actions = () => ({
 
     try {
       const added = await result
+      await resultOrbitDb
 
       const numberOfFiles = files.length
       const numberOfDirs = countDirs(files)
@@ -603,6 +605,25 @@ const importFiles = (ipfs, files) => {
   result.then(() => channel.close(), error => channel.close(error))
 
   return { result, progress: channel }
+}
+
+/**
+ *
+ * @param {FeedStore} orbitDbFeedStore
+ * @param {FileStream[]} files
+ */
+const importFilesToOrbitDB = async (orbitDbFeedStore, files) => {
+  // Add an entry
+  const hash = await orbitDbFeedStore.add({ name: 'User1' })
+  console.log(hash)
+
+  const event = orbitDbFeedStore.get(hash).payload.value
+  console.log(event)
+
+  for (const file in files) {
+    await orbitDbFeedStore.add(file)
+  }
+  return Promise.resolve(true)
 }
 
 /**
