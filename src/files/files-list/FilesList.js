@@ -33,7 +33,8 @@ const mergeRemotePinsIntoFiles = (files, remotePins) => {
 
 export const FilesList = ({
   className, files, pins, remotePins, filesSorting, updateSorting, downloadProgress, filesIsFetching, filesPathInfo, showLoadingAnimation,
-  onShare, onSetPinning, onInspect, onDownload, onRemove, onRename, onNavigate, onRemotePinClick, onAddFiles, onMove, handleContextMenuClick, t
+  onShare, onSetPinning, onInspect, onDownload, onRemove, onRename, onNavigate, onRemotePinClick, onAddFiles, onMove, handleContextMenuClick,
+  handleShareClick, t
 }) => {
   const [selected, setSelected] = useState([])
   const [focused, setFocused] = useState(null)
@@ -248,6 +249,7 @@ export const FilesList = ({
           focused={focused === listItem.name}
           selected={selected.indexOf(listItem.name) !== -1}
           handleContextMenuClick={handleContextMenuClick}
+          handleShareClick={handleShareClick}
           translucent={isDragging || (isOver && canDrop)} />
       </div>
     )
@@ -287,6 +289,7 @@ export const FilesList = ({
               </button>
             </div>
             <div className='pa2' style={{ width: '2.5rem' }} />
+            <div className='pa2' style={{ width: '2rem' }} />
           </header>
           <WindowScroller>
             {({ height, isScrolling, onChildScroll, scrollTop }) => (
@@ -359,6 +362,7 @@ FilesList.propTypes = {
   onAddFiles: PropTypes.func.isRequired,
   onMove: PropTypes.func.isRequired,
   handleContextMenuClick: PropTypes.func.isRequired,
+  handleShareClick: PropTypes.func.isRequired,
   // From i18next
   t: PropTypes.func.isRequired,
   tReady: PropTypes.bool

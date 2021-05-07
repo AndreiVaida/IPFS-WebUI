@@ -38,3 +38,26 @@ html, body, #root {
   font-size: 14px !important;
   font-family: 'Montserrat';
 }
+
+.clickable {
+  cursor: pointer;
+}
+
+.green-hover:hover {
+  filter: invert(48%) sepia(13%) saturate(3207%) hue-rotate(130deg) brightness(95%) contrast(80%);
+}
+
+.center-container {
+  position: relative;
+}
+
+.center-element {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+}
+
+.p-3 {
+  padding: 20px;
+}

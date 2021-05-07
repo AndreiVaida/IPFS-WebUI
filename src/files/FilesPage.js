@@ -19,6 +19,7 @@ import { getJoyrideLocales } from '../helpers/i8n'
 import Modals, { DELETE, NEW_FOLDER, SHARE, RENAME, ADD_BY_PATH, CLI_TUTOR_MODE, PINNING } from './modals/Modals'
 import Header from './header/Header'
 import FileImportStatus from './file-import-status/FileImportStatus'
+import ShareMenu from './share-menu/ShareMenu'
 
 const FilesPage = ({
   doFetchPinningServices, doFilesFetch, doPinsFetch, doFilesSizeGet, doFilesDownloadLink, doFilesWrite, doFilesAddPath, doUpdateHash,
@@ -27,10 +28,17 @@ const FilesPage = ({
   files, filesPathInfo, pinningServices, toursEnabled, handleJoyrideCallback, isCliTutorModeEnabled, cliOptions, t
 }) => {
   const contextMenuRef = useRef()
+  const shareMenuRef = useRef()
   const [downloadAbort, setDownloadAbort] = useState(null)
   const [downloadProgress, setDownloadProgress] = useState(null)
   const [modals, setModals] = useState({ show: null, files: null })
   const [contextMenu, setContextMenu] = useState({
+    isOpen: false,
+    translateX: 0,
+    translateY: 0,
+    file: null
+  })
+  const [shareMenu, setShareMenu] = useState({
     isOpen: false,
     translateX: 0,
     translateY: 0,
@@ -117,6 +125,25 @@ const FilesPage = ({
     })
   }
 
+  const handleShareMenu = (ev, file, pos) => {
+    const shrMenu = findDOMNode(shareMenuRef.current)
+    const shrMenuPosition = shrMenu.getBoundingClientRect()
+
+    const translateX = 1
+    const translateY = (shrMenuPosition.y + shrMenuPosition.height / 2) - (pos && pos.y) - 30
+
+    setShareMenu({
+      isOpen: !shareMenu.isOpen,
+      translateX,
+      translateY,
+      file
+    })
+  }
+
+  const shareContent = (cid, peerId) => {
+    console.log('Send CID "' + cid + '" to peerId "' + peerId + '".') // TODO
+  }
+
   const MainView = ({ t, files, remotePins, doExploreUserProvidedPath }) => {
     if (!files) return (<div/>)
 
@@ -158,7 +185,8 @@ const FilesPage = ({
         onAddFiles={onAddFiles}
         onNavigate={doFilesNavigateTo}
         onMove={doFilesMove}
-        handleContextMenuClick={handleContextMenu} />
+        handleContextMenuClick={handleContextMenu}
+        handleShareClick={handleShareMenu} />
     )
   }
 
@@ -205,6 +233,17 @@ const FilesPage = ({
         isCliTutorModeEnabled={isCliTutorModeEnabled}
         onCliTutorMode={() => showModal(CLI_TUTOR_MODE, [contextMenu.file])}
         doSetCliOptions={doSetCliOptions}
+      />
+
+      <ShareMenu
+        autofocus
+        ref={shareMenuRef}
+        isOpen={shareMenu.isOpen}
+        translateX={shareMenu.translateX}
+        translateY={shareMenu.translateY}
+        handleClose={handleShareMenu}
+        cid={shareMenu.file && shareMenu.file.cid}
+        onShare={(peerIdentifier) => shareContent(shareMenu.file && shareMenu.file.cid, peerIdentifier)}
       />
 
       <Header

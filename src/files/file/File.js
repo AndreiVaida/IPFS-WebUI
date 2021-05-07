@@ -19,9 +19,10 @@ import { NativeTypes } from 'react-dnd-html5-backend'
 
 const File = ({
   name, type, size, cid, path, pinned, t, selected, focused, translucent, coloured, cantSelect, cantDrag, isMfs, isRemotePin,
-  onAddFiles, onMove, onSelect, onNavigate, handleContextMenuClick
+  onAddFiles, onMove, onSelect, onNavigate, handleContextMenuClick, handleShareClick
 }) => {
   const dotsWrapper = useRef()
+  const shareWrapper = useRef()
 
   const handleCtxLeftClick = (ev) => {
     const pos = dotsWrapper.current.getBoundingClientRect()
@@ -30,6 +31,11 @@ const File = ({
 
   const handleCtxRightClick = (ev) => {
     handleContextMenuClick(ev, 'RIGHT', { name, size, type, cid, path, pinned })
+  }
+
+  const handleShareButtonClick = (ev) => {
+    const pos = shareWrapper.current.getBoundingClientRect()
+    handleShareClick(ev, { name, cid }, pos)
   }
 
   const [, drag, preview] = useDrag({
@@ -138,6 +144,9 @@ const File = ({
         <div className='size pl2 pr4 pv1 flex-none f6 dn db-l tr charcoal-muted w-10 mw4'>
           {size}
         </div>
+        <div ref={shareWrapper} title='Share to a peer' onClick={handleShareButtonClick} onKeyDown={handleShareButtonClick} role={'button'} tabIndex={0} className={'center-container'} style={{ width: '2rem', height: '2rem' }}>
+          <img src={shareIcon} alt={'share'} className={'h-75 clickable green-hover center-element'} />
+        </div>
         <button ref={dotsWrapper} className='ph2 db button-inside-focus' style={{ width: '2.5rem' }} onClick={handleCtxLeftClick} aria-label={ t('checkboxLabel', { name })} >
           <GlyphDots className='fill-gray-muted pointer hover-fill-gray transition-all'/>
         </button>
@@ -161,6 +170,7 @@ File.propTypes = {
   coloured: PropTypes.bool,
   translucent: PropTypes.bool,
   handleContextMenuClick: PropTypes.func,
+  handleShareClick: PropTypes.func,
   pinned: PropTypes.bool,
   isMfs: PropTypes.bool
 }
@@ -169,5 +179,7 @@ File.defaultProps = {
   coloured: false,
   translucent: false
 }
+
+const shareIcon = 'icons/Share_black_48dp.png'
 
 export default withTranslation('files')(File)
