@@ -1,6 +1,6 @@
 /* eslint-disable require-yield */
 
-import { join, dirname, basename } from 'path'
+import { basename, dirname, join } from 'path'
 import { getDownloadLink, getShareableLink } from '../../lib/files'
 import countDirs from '../../lib/count-dirs'
 import all from 'it-all'
@@ -8,8 +8,8 @@ import map from 'it-map'
 import last from 'it-last'
 import CID from 'cids'
 
-import { spawn, perform, send, ensureMFS, Channel, sortFiles, infoFromPath } from './utils'
-import { IGNORED_FILES, ACTIONS } from './consts'
+import { Channel, ensureMFS, infoFromPath, perform, send, sortFiles, spawn } from './utils'
+import { ACTIONS, IGNORED_FILES } from './consts'
 
 /**
  * @typedef {import('ipfs').IPFSService} IPFSService
@@ -253,7 +253,7 @@ const actions = () => ({
    * @param {FileStream[]} source
    * @param {string} root
    */
-  doFilesWrite: (source, root) => spawn(ACTIONS.WRITE, async function * (ipfs, { store }, orbitDbFeedStore) {
+  doFilesWrite: (source, root) => spawn(ACTIONS.WRITE, async function * (ipfs, { store }) {
     const files = source
       // Skip ignored files
       .filter($ => !IGNORED_FILES.includes(basename($.path)))
@@ -268,7 +268,6 @@ const actions = () => ({
     yield { entries, progress: 0 }
 
     const { result, progress } = importFiles(ipfs, files)
-    const resultOrbitDb = importFilesToOrbitDB(orbitDbFeedStore, files)
 
     /** @type {null|{uploaded:number, offset:number, name:string}} */
     let status = null
@@ -286,7 +285,6 @@ const actions = () => ({
 
     try {
       const added = await result
-      await resultOrbitDb
 
       const numberOfFiles = files.length
       const numberOfDirs = countDirs(files)
@@ -321,6 +319,24 @@ const actions = () => ({
       return entries
     } finally {
       await store.doFilesFetch()
+    }
+  }),
+
+  /**
+   * Add the file to the OrbitDB Feed Store at the provided address. The file will receive a hash in database.
+   * @param {{cid: String, name: String}} file
+   * @param {string} address
+   * @return Promise<string> OrbitDb hash assigned to the added file
+   */
+  doFileSendToPeer: (file, address) => spawn(ACTIONS.ADD_TO_ORBIT, async function * (_, __, orbitDbProvider) {
+    try {
+      const feedStore = await orbitDbProvider.getFeed(address)
+      console.log('Connected to feed: ' + feedStore.address)
+      const fileHash = addFileToOrbitDbFeed(feedStore, file)
+      return Promise.resolve(fileHash)
+    } catch (e) {
+      console.error('Cannot connect to OrbitDB Feed ' + address)
+      return Promise.reject(e)
     }
   }),
 
@@ -608,23 +624,41 @@ const importFiles = (ipfs, files) => {
 }
 
 /**
- *
+ * Adds a file to OrbitDB Feed Store. The file will receive a unique hash from OrbitDB, even if it has been added before.
  * @param {FeedStore} orbitDbFeedStore
- * @param {FileStream[]} files
+ * @param {{cid: String, name: String}} file
+ * @return {Promise<String>} the hash of the added file
  */
-const importFilesToOrbitDB = async (orbitDbFeedStore, files) => {
-  // Add an entry
-  const hash = await orbitDbFeedStore.add({ name: 'User1' })
-  console.log(hash)
+const addFileToOrbitDbFeed = async (orbitDbFeedStore, file) => {
+  const fileAsString = JSON.stringify(file)
+  const hash = await orbitDbFeedStore.add(fileAsString)
 
-  const event = orbitDbFeedStore.get(hash).payload.value
-  console.log(event)
+  // todo: remove this block
+  const all = orbitDbFeedStore.iterator({ limit: -1 })
+    .collect()
+    .map((e) => e.payload.value)
+  console.log(all)
 
-  for (const file in files) {
-    await orbitDbFeedStore.add(file)
-  }
-  return Promise.resolve(true)
+  return Promise.resolve(hash)
 }
+
+// todo: use it if needed OR remove it
+// /**
+//  * Adds the provided key-value to OrbitDB KeyValue Store.
+//  * @param {KeyValueStore} orbitDbKeyValue
+//  * @param {String} key
+//  * @param {any} value
+//  * @return {Promise<void>} when operation completes
+//  */
+// const addDataToOrbitDbKeyValue = async (orbitDbKeyValue, key, value) => {
+//   const valueAsString = JSON.stringify(value)
+//   await orbitDbKeyValue.put(key, valueAsString)
+//
+//   const all = orbitDbKeyValue.all
+//   console.log(all)
+//
+//   return Promise.resolve()
+// }
 
 /**
  * @param {IPFSService} ipfs

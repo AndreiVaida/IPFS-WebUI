@@ -8,6 +8,7 @@
 
 # production
 /build
+/webui
 
 # misc
 .DS_Store

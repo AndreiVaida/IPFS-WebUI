@@ -61,6 +61,7 @@ export type Message =
   | Delete
   | Move
   | Write
+  | AddToOrbit
   | AddByPath
   | DownloadLink
   | Perform<'FILES_SHARE_LINK', Error, string, void>
@@ -74,6 +75,7 @@ export type Message =
 export type MakeDir = Perform<'FILES_MAKEDIR', Error, void, void>
 export type WriteProgress = { paths: string[], progress: number }
 export type Write = Spawn<'FILES_WRITE', WriteProgress, Error, void, void>
+export type AddToOrbit = Spawn<'FILES_ADD_TO_ORBIT_DB', WriteProgress, Error, void, void> // TODO: this is for progress bar
 export type AddByPath = Perform<'FILES_ADDBYPATH', Error, void, void>
 export type Move = Perform<'FILES_MOVE', Error, void, void>
 export type Delete = Perform<'FILES_DELETE', Error, void, void>

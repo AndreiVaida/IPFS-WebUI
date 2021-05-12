@@ -36,6 +36,9 @@ const createFilesBundle = () => {
         case ACTIONS.WRITE: {
           return updateJob(state, action.task, action.type)
         }
+        case ACTIONS.ADD_TO_ORBIT: {
+          return updateJob(state, action.task, action.type)
+        }
         case ACTIONS.PIN_LIST: {
           const { task, type } = action
 

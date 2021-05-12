@@ -129,6 +129,7 @@ const notify = {
           case 'FOLDER_EXISTS':
             return 'folderExists'
           case FILES_ACTIONS.WRITE:
+          case FILES_ACTIONS.ADD_TO_ORBIT:
           case FILES_ACTIONS.ADD_BY_PATH:
           case 'API_RESPONSE':
             return 'filesAddFailed'

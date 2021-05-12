@@ -26,6 +26,7 @@ export class App extends Component {
     doUpdateUrl: PropTypes.func.isRequired,
     doUpdateHash: PropTypes.func.isRequired,
     doFilesWrite: PropTypes.func.isRequired,
+    doFileSendToPeer: PropTypes.func.isRequired,
     routeInfo: PropTypes.object.isRequired,
     filesPathInfo: PropTypes.object,
     // Injected by DropTarget
@@ -134,6 +135,7 @@ export default connect(
   'doTryInitIpfs',
   'doTryInitOrbitDb',
   'doFilesWrite',
+  'doFileSendToPeer',
   'doDisableTooltip',
   'selectFilesPathInfo',
   withTranslation('app')(AppWithDropTarget)

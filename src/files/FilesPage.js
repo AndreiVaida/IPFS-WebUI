@@ -22,7 +22,7 @@ import FileImportStatus from './file-import-status/FileImportStatus'
 import ShareMenu from './share-menu/ShareMenu'
 
 const FilesPage = ({
-  doFetchPinningServices, doFilesFetch, doPinsFetch, doFilesSizeGet, doFilesDownloadLink, doFilesWrite, doFilesAddPath, doUpdateHash,
+  doFetchPinningServices, doFilesFetch, doPinsFetch, doFilesSizeGet, doFilesDownloadLink, doFilesWrite, doFileSendToPeer, doFilesAddPath, doUpdateHash,
   doFilesUpdateSorting, doFilesNavigateTo, doFilesMove, doSetCliOptions, doFetchRemotePins, remotePins, doExploreUserProvidedPath,
   ipfsProvider, ipfsConnected, doFilesMakeDir, doFilesShareLink, doFilesDelete, doSetPinning, onRemotePinClick,
   files, filesPathInfo, pinningServices, toursEnabled, handleJoyrideCallback, isCliTutorModeEnabled, cliOptions, t
@@ -140,8 +140,10 @@ const FilesPage = ({
     })
   }
 
-  const shareContent = (cid, peerId) => {
-    console.log('Send CID "' + cid + '" to peerId "' + peerId + '".') // TODO
+  const shareContent = (file, address) => {
+    doFileSendToPeer(file, address)
+      .then((fileHash) => console.log('Successfully sent CID: "' + file.cid + '" to address: "' + address + '". Added content received the following hash: "' + fileHash + '".'))
+      .catch((err) => console.error(err))
   }
 
   const MainView = ({ t, files, remotePins, doExploreUserProvidedPath }) => {
@@ -243,7 +245,7 @@ const FilesPage = ({
         translateY={shareMenu.translateY}
         handleClose={handleShareMenu}
         cid={shareMenu.file && shareMenu.file.cid}
-        onShare={(peerIdentifier) => shareContent(shareMenu.file && shareMenu.file.cid, peerIdentifier)}
+        onShare={(peerIdentifier) => shareContent(shareMenu.file, peerIdentifier)}
       />
 
       <Header
@@ -311,6 +313,7 @@ export default connect(
   'selectFilesSorting',
   'selectToursEnabled',
   'doFilesWrite',
+  'doFileSendToPeer',
   'doFilesDownloadLink',
   'doExploreUserProvidedPath',
   'doFilesSizeGet',

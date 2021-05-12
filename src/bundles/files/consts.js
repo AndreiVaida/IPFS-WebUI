@@ -17,6 +17,8 @@ export const ACTIONS = {
   MAKE_DIR: ('FILES_MAKEDIR'),
   /** @type {'FILES_WRITE'} */
   WRITE: ('FILES_WRITE'),
+  /** @type {'FILES_ADD_TO_ORBIT_DB'} */
+  ADD_TO_ORBIT: ('FILES_ADD_TO_ORBIT_DB'),
   /** @type {'FILES_DOWNLOADLINK'} */
   DOWNLOAD_LINK: ('FILES_DOWNLOADLINK'),
   /** @type {'FILES_SHARE_LINK'} */
