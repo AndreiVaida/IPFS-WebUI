@@ -65,6 +65,7 @@
     "name": "Name",
     "node": "Node",
     "out": "Out",
+    "orbitDbAddress": "DB address",
     "peer": "Peer",
     "peerId": "Peer ID",
     "peers": "Peers",

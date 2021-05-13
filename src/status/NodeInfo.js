@@ -3,8 +3,17 @@ import { withTranslation } from 'react-i18next'
 import { connect } from 'redux-bundler-react'
 import VersionLink from '../components/version-link/VersionLink'
 import { Definition, DefinitionList } from '../components/definition/Definition.js'
+import { MessageService, MessageType } from '../notification/MessageService'
 
 class NodeInfo extends React.Component {
+  constructor (props, context) {
+    super(props, context)
+    this.state = {
+      orbitDbAddress: 'loading...'
+    }
+    this.setOrbitDbAddress()
+  }
+
   getField (obj, field, fn) {
     if (obj && obj[field]) {
       if (fn) {
@@ -22,12 +31,23 @@ class NodeInfo extends React.Component {
     return raw ? raw.split('/').join(' ') : ''
   }
 
+  setOrbitDbAddress () {
+    MessageService.getMessages()
+      .subscribe(message => {
+        if (message.type !== MessageType.DATABASE_INIT) return
+        const address = message.data.address.toString()
+        console.log(address)
+        this.setState({ orbitDbAddress: address })
+      })
+  }
+
   render () {
     const { t, identity } = this.props
 
     return (
       <DefinitionList>
         <Definition term={t('terms.peerId')} desc={this.getField(identity, 'id')} />
+        <Definition term={t('terms.orbitDbAddress')} desc={this.state.orbitDbAddress} />
         <Definition term={t('terms.agent')} desc={<VersionLink agentVersion={this.getField(identity, 'agentVersion')} />} />
         <Definition term={t('terms.ui')} desc={<a href={'https://github.com/ipfs-shipyard/ipfs-webui/releases/tag/v' + process.env.REACT_APP_VERSION} className='link blue' target='_blank' rel='noopener noreferrer'>v{process.env.REACT_APP_VERSION}</a>} />
       </DefinitionList>

@@ -1,6 +1,15 @@
-export default class OrbitDbProvider {
-  orbitDb;
+import { MessageService, MessageType } from '../notification/MessageService'
 
+/**
+ * Provider for OrbitDb instances.
+ * Can be used to:
+ * • connect to any database (to another peer)
+ * • set and retrieve own database
+ * • log database specific events
+ *
+ * When set own database, it sends a message to the MessageService with the set db.
+ */
+export default class OrbitDbProvider {
   constructor (orbitDb: OrbitDb) {
     this.orbitDb = orbitDb
   }
@@ -16,6 +25,15 @@ export default class OrbitDbProvider {
     OrbitDbProvider.subscribeToOrbitDbEvents(feedStore)
     await feedStore.load()
     return feedStore
+  }
+
+  getOrbitDb = () => this.orbitDb
+  setOrbitDb = (orbitDb: OrbitDb) => { this.orbitDb = orbitDb }
+
+  getOrbitDbOwnFeedStore = () => this.orbitDbOwnFeedStore
+  setOrbitDbOwnFeedStore = (orbitDbOwnFeedStore: FeedStore) => {
+    this.orbitDbOwnFeedStore = orbitDbOwnFeedStore
+    MessageService.sendMessage(MessageType.DATABASE_INIT, orbitDbOwnFeedStore)
   }
 
   /**

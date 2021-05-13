@@ -78,7 +78,7 @@ export const spawn = (type, task, ...[init]) => async (context) => {
     throw Error('IPFS node was not found')
   } else {
     if (orbitDbProvider == null) {
-      console.error('OrbitDb Provider was not initialized')
+      console.error('[spawn] OrbitDb Provider was not initialized')
     }
 
     const spawn = Task.spawn(

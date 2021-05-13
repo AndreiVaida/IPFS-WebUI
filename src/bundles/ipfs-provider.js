@@ -79,8 +79,8 @@ export const ACTIONS = Enum.from([
   'NOTIFY_DISMISSED'
 ])
 
-const ORBIT_DB_FEED_ADDRESS = 'my_feed_1' // todo: use unique address, maybe the peer ID?
-const ORBIT_DB_KEY_VALUE_ADDRESS = 'my_key_value_1'
+const ORBIT_DB_FEED_ADDRESS = 'shared_feed'
+const ORBIT_DB_KEY_VALUE_ADDRESS = 'shared_keyValue'
 
 /**
  * @param {Model} state
@@ -483,23 +483,33 @@ const actions = {
   doInitOrbitDb: () => perform('ORBITDB_INIT',
     async () => {
       const identity = await Identities.createIdentity({ id: 'local-id' })
-      console.log(identity.toJSON()) // todo: remove this line
       orbitDb = await OrbitDb.createInstance(ipfs, { identity: identity })
 
       orbitDbProvider = new OrbitDbProvider(orbitDb)
 
-      await initOrbitDbFeedStore(orbitDb)
+      await initOrbitDbFeedStore(orbitDb, orbitDbProvider)
       await initOrbitDbKeyValueStore(orbitDb)
 
-      OrbitDbProvider.subscribeToOrbitDbEvents(orbitDbOwnFeedStore)
-
-      async function initOrbitDbFeedStore (orbitDb: OrbitDb) {
+      /**
+       * Connect to own OrbitDb Feed Store, load the local database and set it in the OrbitDbProvider.
+       * @param {OrbitDb} orbitDb
+       * @param {OrbitDbProvider} orbitDbProvider
+       * @return {Promise<void>} when operation completes
+       */
+      async function initOrbitDbFeedStore (orbitDb, orbitDbProvider) {
         orbitDbOwnFeedStore = await orbitDb.feed(ORBIT_DB_FEED_ADDRESS, orbitDbOptionsOwner)
         await orbitDbOwnFeedStore.load()
+        orbitDbProvider.setOrbitDbOwnFeedStore(orbitDbOwnFeedStore)
+        OrbitDbProvider.subscribeToOrbitDbEvents(orbitDbOwnFeedStore)
         console.info('OrbitDB Feed Store is ready: ' + orbitDbOwnFeedStore.address)
       }
 
-      async function initOrbitDbKeyValueStore (orbitDb: OrbitDb) {
+      /**
+       * Connect to own OrbitDb KeyValue Store and load the local database.
+       * @param {OrbitDb} orbitDb
+       * @return {Promise<void>} when operation completes
+       */
+      async function initOrbitDbKeyValueStore (orbitDb) {
         orbitDbOwnKeyValueStore = await orbitDb.keyvalue(ORBIT_DB_KEY_VALUE_ADDRESS, orbitDbOptionsOwner)
         orbitDbOwnKeyValueStore.load()
         console.info('OrbitDB KeyValue Store is ready')
