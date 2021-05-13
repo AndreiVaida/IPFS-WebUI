@@ -56,23 +56,31 @@ export const OrbitDbProvider = {
    * Subscribes to relevant events regarding connecting & retrieving data for provided database and logs the events.
    * Useful for debugging.
    * @param {FeedStore|KeyValueStore} databaseInstance - any OrbitDb database instance
+   * @param {boolean} log - activate/deactivate logs when an event is received
    */
-  subscribeToOrbitDbEvents: (databaseInstance) => {
+  subscribeToOrbitDbEvents: (databaseInstance, log = true) => {
     databaseInstance.events.on('replicated', address => {
-      console.log('> replicated: ' + address)
+      if (log) console.log('> replicated: ' + address)
     })
     databaseInstance.events.on('replicate', address => {
-      console.log('> replicated: ' + address)
+      if (log) console.log('> replicated: ' + address)
     })
     databaseInstance.events.on('peer', peer => {
-      console.log('> peer connected: ' + peer)
+      if (log) console.log('> peer connected: ' + peer)
     })
     databaseInstance.events.on('peer.exchanged', (peer, address, heads) => {
-      console.log('> peer.exchanged: {peer: ' + peer + ', address: ' + address, ', heads: ' + heads + '}')
+      if (log) console.log('> peer.exchanged: {peer: ' + peer + ', address: ' + address, ', heads: ' + heads + '}')
     })
-    databaseInstance.events.on('write', (address, entry, heads) => {
-      console.log('> write { address: ' + address + ', entry: ' + entry + ', heads: ' + heads + ' }')
-    })
+    databaseInstance.events.on('write',
+      /**
+       * @param {string} address
+       * @param {{cid: String, name: String}} entry
+       * @param {string} heads
+       */
+      (address, entry, heads) => {
+        if (log) console.log('> write { address: ' + address + ', entry: ' + entry + ', heads: ' + heads + ' }')
+        // importFileToShareFolder(entry)
+      })
   }
 }
 

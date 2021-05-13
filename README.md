@@ -1,8 +1,10 @@
-# IPFS Web UI
+# IPFS Web UI (enhanced by Andrei Vaida)
 
 > A web interface to [IPFS](https://ipfs.io), shipped with [go-ipfs](https://github.com/ipfs/go-ipfs), [js-ipfs](https://github.com/ipfs/js-ipfs), and [ipfs-desktop](https://github.com/ipfs/ipfs-desktop/).
 >
 > Check on your node stats, explore the IPLD powered merkle forest, see peers around the world and manage your files, without needing to touch the CLI.
+> 
+> This is the official IPFS WebUI application, but enhanced with OrbitDb and some UI changes.
 
 ![Screenshot of the status page](docs/screenshots/ipfs-webui-status.png)
 
@@ -20,6 +22,12 @@ The IPFS WebUI is a **work-in-progress**. Help us make it better! We use the iss
 The app uses [`ipfs-http-client`](https://github.com/ipfs/js-ipfs-http-client) to communicate with your local IPFS node.
 
 The app is built with [`create-react-app`](https://github.com/facebook/create-react-app). Please read the [docs](https://github.com/facebook/create-react-app/blob/master/packages/react-scripts/template/README.md#table-of-contents).
+
+## Features added to original IPFS WebUI
+- Share content to other peer directly from the app (using OrbitDb)
+- The Files Page is more visible on the header (TODO)
+
+**Warning:** ipfs daemon must be started with `--enable-pubsub-experiment` argument in order for OrbitDb to work
 
 ## Install
 

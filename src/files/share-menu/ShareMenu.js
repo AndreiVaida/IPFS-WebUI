@@ -44,7 +44,7 @@ class ShareMenu extends React.Component {
   peerInputIsEmpty = () => this.state.peerIdentifier.trim() === ''
 
   render () {
-    const { translateX, translateY, className } = this.props
+    const { t, translateX, translateY, className } = this.props
 
     return (
       <Dropdown className={className}>
@@ -59,9 +59,9 @@ class ShareMenu extends React.Component {
           className={'p-3'}
           open={this.props.isOpen}
           onDismiss={this.props.handleClose}>
-          <label htmlFor={'peer-identifier'} className={'center mb2 bold'}>Share to a peer</label>
-          <input id={'peer-identifier'} type={'text'} placeholder={'Enter your peer\'s CID...'} value={this.state.peerIdentifier} onChange={e => { this.setPeerIdentifier(e.target.value) }} onKeyDown={this.handleKeyDown} />
-          <Button bg='bg-navy' color='white' className='f6 flex justify-center items-center mt1' onClick={this.share} disabled={this.peerInputIsEmpty() }>Send</Button>
+          <label htmlFor={'peer-identifier'} className={'center mb2 bold'}>{t('terms.sendToPeer')}</label>
+          <input id={'peer-identifier'} type={'text'} placeholder={t('terms.enterDbAddress')} value={this.state.peerIdentifier} onChange={e => { this.setPeerIdentifier(e.target.value) }} onKeyDown={this.handleKeyDown} />
+          <Button bg='bg-navy' color='white' className='f6 flex justify-center items-center mt1' onClick={this.share} disabled={this.peerInputIsEmpty() }>{t('terms.send')}</Button>
         </DropdownMenu>
       </Dropdown>
     )
@@ -74,7 +74,8 @@ ShareMenu.props = {
   translateX: PropTypes.number.isRequired,
   translateY: PropTypes.number.isRequired,
   onShare: PropTypes.func,
-  autofocus: PropTypes.bool
+  autofocus: PropTypes.bool,
+  t: PropTypes.func.isRequired
 }
 
 ShareMenu.defaultProps = {

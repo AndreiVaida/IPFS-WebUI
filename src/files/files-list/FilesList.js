@@ -236,7 +236,7 @@ export const FilesList = ({
     }
 
     return (
-      <div key={key} style={style} ref={r => { filesRefs.current[allFiles[index].name] = r }}>
+      <div key={key} style={style} ref={r => { filesRefs.current[allFiles[index].name] = r }} className={'hover-bg-transparent-blue'}>
         <File
           {...listItem}
           pinned={pinsString.includes(listItem.cid.toString())}

@@ -18,7 +18,8 @@ const NavLink = ({
   icon,
   alternative,
   disabled,
-  children
+  children,
+  className
 }) => {
   const Svg = icon
   const { hash } = window.location
@@ -37,7 +38,7 @@ const NavLink = ({
 
   return (
     // eslint-disable-next-line jsx-a11y/anchor-is-valid
-    <a href={disabled ? null : href} className={anchorClass} role='menuitem' title={children}>
+    <a href={disabled ? null : href} className={anchorClass + ' ' + className} role='menuitem' title={children}>
       <div className='db ph2 pv1'>
         <div className='db'>
           <Svg width='46' role='presentation' className={svgClass} />
@@ -68,7 +69,7 @@ export const NavBar = ({ t }) => {
         </a>
         <div className='db overflow-x-scroll overflow-x-hidden-l nowrap tc' role='menubar'>
           <NavLink to='/' alternative="status" icon={StrokeMarketing}>{t('status:title')}</NavLink>
-          <NavLink to='/files' icon={StrokeWeb}>{t('files:title')}</NavLink>
+          <NavLink to='/files' icon={StrokeWeb} className={'animated-background-bright'}>{t('files:title')}</NavLink>
           <NavLink to='/explore' icon={StrokeIpld}>{t('explore:tabName')}</NavLink>
           <NavLink to='/peers' icon={StrokeCube}>{t('peers:title')}</NavLink>
           <NavLink to='/settings' icon={StrokeSettings}>{t('settings:title')}</NavLink>

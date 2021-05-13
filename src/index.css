@@ -47,6 +47,10 @@ html, body, #root {
   filter: invert(48%) sepia(13%) saturate(3207%) hue-rotate(130deg) brightness(95%) contrast(80%);
 }
 
+.hover-bg-transparent-blue:hover {
+  background-color: rgba(11, 58, 83, 0.05);
+}
+
 .center-container {
   position: relative;
 }
@@ -60,4 +64,16 @@ html, body, #root {
 
 .p-3 {
   padding: 20px;
+}
+
+.animated-background-bright {
+  animation-name: animated-background-color;
+  animation-duration: 4s;
+  animation-iteration-count: infinite;
+}
+
+@keyframes animated-background-color {
+  0% {filter: brightness(100%)}
+  50% {backdrop-filter: brightness(150%)}
+  100% {filter: brightness(100%)}
 }

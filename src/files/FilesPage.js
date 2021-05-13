@@ -239,6 +239,7 @@ const FilesPage = ({
 
       <ShareMenu
         autofocus
+        t={shareMenu.t}
         ref={shareMenuRef}
         isOpen={shareMenu.isOpen}
         translateX={shareMenu.translateX}
