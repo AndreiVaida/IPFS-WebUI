@@ -4,6 +4,7 @@ import { connect } from 'redux-bundler-react'
 import VersionLink from '../components/version-link/VersionLink'
 import { Definition, DefinitionList } from '../components/definition/Definition.js'
 import { MessageService, MessageType } from '../notification/MessageService'
+import { OrbitDbProvider } from '../bundles/orbitdb-provider'
 
 class NodeInfo extends React.Component {
   constructor (props, context) {
@@ -11,6 +12,9 @@ class NodeInfo extends React.Component {
     this.state = {
       orbitDbAddress: 'loading...'
     }
+  }
+
+  componentDidMount () {
     this.setOrbitDbAddress()
   }
 
@@ -32,13 +36,18 @@ class NodeInfo extends React.Component {
   }
 
   setOrbitDbAddress () {
-    MessageService.getMessages()
-      .subscribe(message => {
-        if (message.type !== MessageType.DATABASE_INIT) return
-        const address = message.data.address.toString()
-        console.log(address)
-        this.setState({ orbitDbAddress: address })
-      })
+    const ownDatabase = OrbitDbProvider.getOwnFeed()
+    if (ownDatabase) {
+      const address = ownDatabase.address.toString()
+      this.setState({ orbitDbAddress: address })
+    } else {
+      MessageService.getMessages()
+        .subscribe(message => {
+          if (message.type !== MessageType.DATABASE_INIT) return
+          const address = message.data.address.toString()
+          this.setState({ orbitDbAddress: address })
+        })
+    }
   }
 
   render () {

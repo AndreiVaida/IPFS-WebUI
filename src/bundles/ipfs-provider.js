@@ -8,7 +8,7 @@ import * as Enum from './enum'
 import { perform } from './task'
 import OrbitDb from 'orbit-db'
 import Identities from 'orbit-db-identity-provider'
-import OrbitDbProvider, { orbitDbOptionsOwner } from './orbitdb-provider'
+import { orbitDbOptionsOwner, OrbitDbProvider } from './orbitdb-provider'
 
 /* TODO: restore when  no longer bundle standalone ipld with ipld-explorer
  * context: https://github.com/ipfs/ipld-explorer-components/pull/289
@@ -321,32 +321,12 @@ const writeSetting = (id, value) => {
 /** @type {IPFSService|null} */
 let ipfs = null
 
-/** @type {OrbitDb|null} */
-let orbitDb = null
-
-/** @type {OrbitDbProvider|null} */
-let orbitDbProvider = null
-
-/** @type {FeedStore|null} */
-let orbitDbOwnFeedStore = null
-
-/** @type {KeyValueStore|null} */
-let orbitDbOwnKeyValueStore = null
-
 /**
  * @typedef {typeof extra} Extra
  */
 const extra = {
   getIpfs () {
     return ipfs
-  },
-
-  /**
-   * Object that connects and provides OrbitDB instances of own or other peers.
-   * @return {OrbitDbProvider|null}
-   */
-  getOrbitDbProvider () {
-    return orbitDbProvider
   }
 }
 
@@ -483,23 +463,22 @@ const actions = {
   doInitOrbitDb: () => perform('ORBITDB_INIT',
     async () => {
       const identity = await Identities.createIdentity({ id: 'local-id' })
-      orbitDb = await OrbitDb.createInstance(ipfs, { identity: identity })
+      const orbitDb = await OrbitDb.createInstance(ipfs, { identity: identity })
 
-      orbitDbProvider = new OrbitDbProvider(orbitDb)
+      OrbitDbProvider.setOrbitDb(orbitDb)
 
-      await initOrbitDbFeedStore(orbitDb, orbitDbProvider)
+      await initOrbitDbFeedStore(orbitDb)
       await initOrbitDbKeyValueStore(orbitDb)
 
       /**
        * Connect to own OrbitDb Feed Store, load the local database and set it in the OrbitDbProvider.
        * @param {OrbitDb} orbitDb
-       * @param {OrbitDbProvider} orbitDbProvider
        * @return {Promise<void>} when operation completes
        */
-      async function initOrbitDbFeedStore (orbitDb, orbitDbProvider) {
-        orbitDbOwnFeedStore = await orbitDb.feed(ORBIT_DB_FEED_ADDRESS, orbitDbOptionsOwner)
+      async function initOrbitDbFeedStore (orbitDb) {
+        const orbitDbOwnFeedStore = await orbitDb.feed(ORBIT_DB_FEED_ADDRESS, orbitDbOptionsOwner)
         await orbitDbOwnFeedStore.load()
-        orbitDbProvider.setOrbitDbOwnFeedStore(orbitDbOwnFeedStore)
+        OrbitDbProvider.setOwnFeed(orbitDbOwnFeedStore)
         OrbitDbProvider.subscribeToOrbitDbEvents(orbitDbOwnFeedStore)
         console.info('OrbitDB Feed Store is ready: ' + orbitDbOwnFeedStore.address)
       }
@@ -510,8 +489,8 @@ const actions = {
        * @return {Promise<void>} when operation completes
        */
       async function initOrbitDbKeyValueStore (orbitDb) {
-        orbitDbOwnKeyValueStore = await orbitDb.keyvalue(ORBIT_DB_KEY_VALUE_ADDRESS, orbitDbOptionsOwner)
-        orbitDbOwnKeyValueStore.load()
+        const orbitDbOwnKeyValueStore = await orbitDb.keyvalue(ORBIT_DB_KEY_VALUE_ADDRESS, orbitDbOptionsOwner)
+        await orbitDbOwnKeyValueStore.load()
         console.info('OrbitDB KeyValue Store is ready')
       }
     }

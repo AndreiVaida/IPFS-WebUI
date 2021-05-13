@@ -10,6 +10,7 @@ import CID from 'cids'
 
 import { Channel, ensureMFS, infoFromPath, perform, send, sortFiles, spawn } from './utils'
 import { ACTIONS, IGNORED_FILES } from './consts'
+import { OrbitDbProvider } from '../orbitdb-provider'
 
 /**
  * @typedef {import('ipfs').IPFSService} IPFSService
@@ -328,9 +329,9 @@ const actions = () => ({
    * @param {string} address
    * @return Promise<string> OrbitDb hash assigned to the added file
    */
-  doFileSendToPeer: (file, address) => spawn(ACTIONS.ADD_TO_ORBIT, async function * (_, __, orbitDbProvider) {
+  doFileSendToPeer: (file, address) => spawn(ACTIONS.ADD_TO_ORBIT, async function * (_, __) {
     try {
-      const feedStore = await orbitDbProvider.getFeed(address)
+      const feedStore = await OrbitDbProvider.connectToFeed(address)
       console.log('Connected to feed: ' + feedStore.address)
       const fileHash = addFileToOrbitDbFeed(feedStore, file)
       return Promise.resolve(fileHash)

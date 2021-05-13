@@ -1,5 +1,10 @@
 import { MessageService, MessageType } from '../notification/MessageService'
 
+/** @type OrbitDb */
+let orbitDb
+/** @type FeedStore */
+let orbitDbOwnFeedStore
+
 /**
  * Provider for OrbitDb instances.
  * Can be used to:
@@ -9,10 +14,7 @@ import { MessageService, MessageType } from '../notification/MessageService'
  *
  * When set own database, it sends a message to the MessageService with the set db.
  */
-export default class OrbitDbProvider {
-  constructor (orbitDb: OrbitDb) {
-    this.orbitDb = orbitDb
-  }
+export const OrbitDbProvider = {
 
   /**
    * Connects, loads and returns the OrbitDb Feed Store of the provided address.
@@ -20,28 +22,42 @@ export default class OrbitDbProvider {
    * @returns {Promise<FeedStore>}
    * @throws an error if cannot connect to the DB
    */
-  async getFeed (address) {
-    const feedStore = await this.orbitDb.feed(address, orbitDbOptionsParticipant)
+  connectToFeed: async (address) => {
+    const feedStore = await orbitDb.feed(address, orbitDbOptionsParticipant)
     OrbitDbProvider.subscribeToOrbitDbEvents(feedStore)
     await feedStore.load()
     return feedStore
-  }
+  },
 
-  getOrbitDb = () => this.orbitDb
-  setOrbitDb = (orbitDb: OrbitDb) => { this.orbitDb = orbitDb }
+  /**
+   * @return {OrbitDb}
+   */
+  getOrbitDb: () => orbitDb,
+  /**
+   * Set the OrbitDb.
+   * @param {OrbitDb} db
+   */
+  setOrbitDb: (db) => { orbitDb = db },
 
-  getOrbitDbOwnFeedStore = () => this.orbitDbOwnFeedStore
-  setOrbitDbOwnFeedStore = (orbitDbOwnFeedStore: FeedStore) => {
-    this.orbitDbOwnFeedStore = orbitDbOwnFeedStore
+  /**
+   * @return {FeedStore}
+   */
+  getOwnFeed: () => orbitDbOwnFeedStore,
+  /**
+   * Set the own Feed Store database and send it as a message to MessageService.
+   * @param {FeedStore} ownFeedStore
+   */
+  setOwnFeed: (ownFeedStore) => {
+    orbitDbOwnFeedStore = ownFeedStore
     MessageService.sendMessage(MessageType.DATABASE_INIT, orbitDbOwnFeedStore)
-  }
+  },
 
   /**
    * Subscribes to relevant events regarding connecting & retrieving data for provided database and logs the events.
    * Useful for debugging.
    * @param {FeedStore|KeyValueStore} databaseInstance - any OrbitDb database instance
    */
-  static subscribeToOrbitDbEvents = (databaseInstance: FeedStore|KeyValueStore) => {
+  subscribeToOrbitDbEvents: (databaseInstance) => {
     databaseInstance.events.on('replicated', address => {
       console.log('> replicated: ' + address)
     })

@@ -1,6 +1,7 @@
 import { sortByName, sortBySize } from '../../lib/sort'
 import { IS_MAC, SORTING } from './consts'
 import * as Task from '../task'
+import { OrbitDbProvider } from '../orbitdb-provider'
 
 /**
  * @typedef {import('ipfs').IPFSService} IPFSService
@@ -66,19 +67,18 @@ import * as Task from '../task'
  * @template {BundlerContext<State, Spawn<Type, Message, Error, Success, Init>, Ext, Extra>} Context
  *
  * @param {Type} type - Type of the actions this will dispatch.
- * @param {(service:IPFSService, context:Context, orbitDBProvider: OrbitDbProvider|null) => AsyncGenerator<Message, Success, void>} task - Task
+ * @param {(service:IPFSService, context:Context) => AsyncGenerator<Message, Success, void>} task - Task
  * @param {Init[]} rest - Optinal initialization parameter.
  * @returns {(context:Context) => Promise<Success>}
  */
 export const spawn = (type, task, ...[init]) => async (context) => {
   const ipfs = context.getIpfs()
-  const orbitDbProvider = context.getOrbitDbProvider()
 
   if (ipfs == null) {
     throw Error('IPFS node was not found')
   } else {
-    if (orbitDbProvider == null) {
-      console.error('[spawn] OrbitDb Provider was not initialized')
+    if (OrbitDbProvider.getOrbitDb() == null) {
+      console.error('[spawn] OrbitDb was not initialized')
     }
 
     const spawn = Task.spawn(
@@ -88,7 +88,7 @@ export const spawn = (type, task, ...[init]) => async (context) => {
        * @returns {AsyncGenerator<Message, Success, void>}}
        */
       async function * (context) {
-        const process = task(ipfs, context, orbitDbProvider)
+        const process = task(ipfs, context)
         while (true) {
           const next = await process.next()
           if (next.done) {
