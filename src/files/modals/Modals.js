@@ -58,6 +58,7 @@ class Modals extends React.Component {
   }
 
   makeDir = (path) => {
+    console.log(path)
     this.props.onMakeDir(join(this.props.root, path))
     this.leave()
   }

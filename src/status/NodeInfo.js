@@ -18,6 +18,10 @@ class NodeInfo extends React.Component {
     this.setOrbitDbAddress()
   }
 
+  componentWillUnmount () {
+    this.subscription?.unsubscribe()
+  }
+
   getField (obj, field, fn) {
     if (obj && obj[field]) {
       if (fn) {
@@ -41,7 +45,7 @@ class NodeInfo extends React.Component {
       const address = ownDatabase.address.toString()
       this.setState({ orbitDbAddress: address })
     } else {
-      MessageService.getMessages()
+      this.subscription = MessageService.getMessages()
         .subscribe(message => {
           if (message.type !== MessageType.DATABASE_INIT) return
           const address = message.data.address.toString()

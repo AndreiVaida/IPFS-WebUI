@@ -1,4 +1,7 @@
 import { MessageService, MessageType } from '../notification/MessageService'
+// import { join } from 'path'
+import { connect } from 'redux-bundler-react'
+import withTour from '../components/tour/withTour'
 
 /** @type OrbitDb */
 let orbitDb
@@ -79,10 +82,20 @@ export const OrbitDbProvider = {
        */
       (address, entry, heads) => {
         if (log) console.log('> write { address: ' + address + ', entry: ' + entry + ', heads: ' + heads + ' }')
-        // importFileToShareFolder(entry)
+        importFileToShareFolder(entry)
       })
   }
 }
+
+/**
+ * Download the file to local IPFS in the shared folder.
+ * @param {{cid: String, name: String}} file
+ */
+function importFileToShareFolder (file) {
+  // this.props.onMakeDir(join(this.props.root, path))
+}
+
+// const SHARED_FOLDER = '/Shared with me'
 
 export const orbitDbOptionsOwner = {
   overwrite: false,
@@ -98,3 +111,8 @@ export const orbitDbOptionsParticipant = {
   replicate: true,
   overwrite: false
 }
+
+export default connect(
+  'doFilesMakeDir',
+  withTour()
+)

@@ -144,7 +144,7 @@ const File = ({
         <div className='size pl2 pr4 pv1 flex-none f6 dn db-l tr charcoal-muted w-10 mw4'>
           {size}
         </div>
-        <div ref={shareWrapper} title='Share to a peer' onClick={handleShareButtonClick} onKeyDown={handleShareButtonClick} role={'button'} tabIndex={0} className={'center-container'} style={{ width: '2rem', height: '2rem' }}>
+        <div ref={shareWrapper} title={t('terms.sendToPeer')} onClick={handleShareButtonClick} onKeyDown={handleShareButtonClick} role={'button'} tabIndex={0} className={'center-container'} style={{ width: '2rem', height: '2rem' }}>
           <img src={shareIcon} alt={'share'} className={'h-75 clickable green-hover center-element'} />
         </div>
         <button ref={dotsWrapper} className='ph2 db button-inside-focus' style={{ width: '2.5rem' }} onClick={handleCtxLeftClick} aria-label={ t('checkboxLabel', { name })} >

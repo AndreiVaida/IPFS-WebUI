@@ -405,6 +405,7 @@ const actions = () => ({
    */
   doFilesAddPath: (root, src) => perform(ACTIONS.ADD_BY_PATH, async (ipfs, { store }) => {
     ensureMFS(store)
+    console.log(root + '    ' + src) // TODO: use it
 
     const path = realMfsPath(src)
     /** @type {string} */
