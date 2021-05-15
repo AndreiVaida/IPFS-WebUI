@@ -465,6 +465,7 @@ const actions = {
       const identity = await Identities.createIdentity({ id: 'local-id' })
       const orbitDb = await OrbitDb.createInstance(ipfs, { identity: identity })
 
+      OrbitDbProvider.setIpfs(ipfs)
       OrbitDbProvider.setOrbitDb(orbitDb)
 
       await initOrbitDbFeedStore(orbitDb)

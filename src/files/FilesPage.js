@@ -141,8 +141,9 @@ const FilesPage = ({
   }
 
   const shareContent = (file, address) => {
-    doFileSendToPeer(file, address)
-      .then((fileHash) => console.log('Successfully sent CID: "' + file.cid + '" to address: "' + address + '". Added content received the following hash: "' + fileHash + '".'))
+    const fileToShare = { name: file.name, cid: file.cid.toString() }
+    doFileSendToPeer(fileToShare, address)
+      .then((fileHash) => console.log('Successfully sent CID: "' + fileToShare.cid + '" to address: "' + address + '". Added content received the following hash: "' + fileHash + '".'))
       .catch((err) => console.error(err))
   }
 

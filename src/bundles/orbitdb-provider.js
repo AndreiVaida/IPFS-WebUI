@@ -2,11 +2,15 @@ import { MessageService, MessageType } from '../notification/MessageService'
 // import { join } from 'path'
 import { connect } from 'redux-bundler-react'
 import withTour from '../components/tour/withTour'
+import { join } from 'path'
+import { realMfsPath } from './files/actions'
 
 /** @type OrbitDb */
 let orbitDb
 /** @type FeedStore */
 let orbitDbOwnFeedStore
+/** @type IPFSService */
+let ipfsService
 
 /**
  * Provider for OrbitDb instances.
@@ -31,6 +35,12 @@ export const OrbitDbProvider = {
     await feedStore.load()
     return feedStore
   },
+
+  /**
+   * Set the ipfs service used to update the local repository.
+   * @param {IpfsService} ipfs
+   */
+  setIpfs: (ipfs) => { ipfsService = ipfs },
 
   /**
    * @return {OrbitDb}
@@ -74,16 +84,11 @@ export const OrbitDbProvider = {
     databaseInstance.events.on('peer.exchanged', (peer, address, heads) => {
       if (log) console.log('> peer.exchanged: {peer: ' + peer + ', address: ' + address, ', heads: ' + heads + '}')
     })
-    databaseInstance.events.on('write',
-      /**
-       * @param {string} address
-       * @param {{cid: String, name: String}} entry
-       * @param {string} heads
-       */
-      (address, entry, heads) => {
-        if (log) console.log('> write { address: ' + address + ', entry: ' + entry + ', heads: ' + heads + ' }')
-        importFileToShareFolder(entry)
-      })
+    databaseInstance.events.on('write', (address, entry, heads) => {
+      const fileAsString = entry.payload.value
+      if (log) console.log('> write { address: ' + address + ', file: ' + fileAsString + ' }')
+      importFileToShareFolder(JSON.parse(fileAsString))
+    })
   }
 }
 
@@ -91,11 +96,45 @@ export const OrbitDbProvider = {
  * Download the file to local IPFS in the shared folder.
  * @param {{cid: String, name: String}} file
  */
-function importFileToShareFolder (file) {
-  // this.props.onMakeDir(join(this.props.root, path))
+const importFileToShareFolder = async (file) => {
+  await createFolderIfNotExist('/', SHARED_FOLDER)
+
+  const path = '/files/' + SHARED_FOLDER
+  const cid = file.cid
+  // ensureMFS(store)
+
+  const mfsPath = realMfsPath(cid)
+  /** @type {string} */
+  const ipfsName = (mfsPath.split('/').pop())
+  const dst = realMfsPath(join(path, file.name))
+  const srcPath = cid.startsWith('/') ? cid : `/ipfs/${ipfsName}`
+
+  try {
+    return await ipfsService.files.cp(srcPath, dst)
+  } finally {
+    // await store.doFilesFetch()
+  }
 }
 
-// const SHARED_FOLDER = '/Shared with me'
+/**
+ * Create a folder at specified path, if it doesn't exists.
+ * It does not support parent folder creation, i.e. the last folder from path must exists.
+ * @param {string} root existing path to root of the new folder (must begin with '/')
+ * @param {string} folderName - name of the folder to be created
+ * @returns {Promise<void>} of execution
+ */
+const createFolderIfNotExist = async (root, folderName) => {
+  for await (const item of ipfsService.files.ls(root)) {
+    if (item.type === 'directory' && item.name === folderName) {
+      return Promise.resolve()
+    }
+  }
+
+  const path = root + '/' + folderName
+  return ipfsService.files.mkdir(realMfsPath(path))
+}
+
+const SHARED_FOLDER = 'Shared with me'
 
 export const orbitDbOptionsOwner = {
   overwrite: false,

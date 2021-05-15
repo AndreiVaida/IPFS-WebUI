@@ -405,7 +405,6 @@ const actions = () => ({
    */
   doFilesAddPath: (root, src) => perform(ACTIONS.ADD_BY_PATH, async (ipfs, { store }) => {
     ensureMFS(store)
-    console.log(root + '    ' + src) // TODO: use it
 
     const path = realMfsPath(src)
     /** @type {string} */
@@ -634,13 +633,6 @@ const importFiles = (ipfs, files) => {
 const addFileToOrbitDbFeed = async (orbitDbFeedStore, file) => {
   const fileAsString = JSON.stringify(file)
   const hash = await orbitDbFeedStore.add(fileAsString)
-
-  // todo: remove this block
-  const all = orbitDbFeedStore.iterator({ limit: -1 })
-    .collect()
-    .map((e) => e.payload.value)
-  console.log(all)
-
   return Promise.resolve(hash)
 }
 
