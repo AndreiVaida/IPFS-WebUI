@@ -110,9 +110,10 @@ const importFileToShareFolder = async (file) => {
   const srcPath = cid.startsWith('/') ? cid : `/ipfs/${ipfsName}`
 
   try {
-    return await ipfsService.files.cp(srcPath, dst)
-  } finally {
-    // await store.doFilesFetch()
+    await ipfsService.files.cp(srcPath, dst)
+    MessageService.sendMessage(MessageType.CONTENT_RECEIVED, file)
+  } catch (e) {
+    console.error('Cannot import content ' + file.cid + ' from OrbitDb to local IPFS repository.')
   }
 }
 

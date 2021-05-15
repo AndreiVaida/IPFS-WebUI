@@ -20,6 +20,7 @@ import Modals, { DELETE, NEW_FOLDER, SHARE, RENAME, ADD_BY_PATH, CLI_TUTOR_MODE,
 import Header from './header/Header'
 import FileImportStatus from './file-import-status/FileImportStatus'
 import ShareMenu from './share-menu/ShareMenu'
+import { MessageService, MessageType } from '../notification/MessageService'
 
 const FilesPage = ({
   doFetchPinningServices, doFilesFetch, doPinsFetch, doFilesSizeGet, doFilesDownloadLink, doFilesWrite, doFileSendToPeer, doFilesAddPath, doUpdateHash,
@@ -31,6 +32,7 @@ const FilesPage = ({
   const shareMenuRef = useRef()
   const [downloadAbort, setDownloadAbort] = useState(null)
   const [downloadProgress, setDownloadProgress] = useState(null)
+  const [subscription, setSubscription] = useState(null)
   const [modals, setModals] = useState({ show: null, files: null })
   const [contextMenu, setContextMenu] = useState({
     isOpen: false,
@@ -44,6 +46,14 @@ const FilesPage = ({
     translateY: 0,
     file: null
   })
+
+  useEffect(() => {
+    subscribeToContentReceived()
+
+    return () => {
+      unsubscribeToContentReceived()
+    }
+  }, [])
 
   useEffect(() => {
     doFetchPinningServices()
@@ -63,6 +73,18 @@ const FilesPage = ({
       files && files.content && doFetchRemotePins(files.content)
     }
   }, [files, pinningServices, doFetchRemotePins])
+
+  const subscribeToContentReceived = () => {
+    setSubscription(MessageService.getMessages()
+      .subscribe(message => {
+        if (message.type !== MessageType.CONTENT_RECEIVED) return
+        doFilesFetch()
+      }))
+  }
+
+  const unsubscribeToContentReceived = () => {
+    subscription?.unsubscribe()
+  }
 
   const onDownload = async (files) => {
     if (downloadProgress !== null) {

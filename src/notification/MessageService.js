@@ -16,5 +16,6 @@ export const MessageService = {
 }
 
 export const MessageType = {
-  DATABASE_INIT: 'database_init'
+  DATABASE_INIT: 'database_init',
+  CONTENT_RECEIVED: 'content_received'
 }
