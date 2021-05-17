@@ -6,6 +6,7 @@ import Button from '../../components/button/Button'
 import PeerList from '../peer-list/PeerList'
 import Peer from '../peer-list/Peer'
 import { MessageService, MessageType } from '../../notification/MessageService'
+import { OrbitDbProvider } from '../../bundles/orbitdb-provider'
 
 class ShareMenu extends React.Component {
   constructor (props) {
@@ -38,6 +39,7 @@ class ShareMenu extends React.Component {
   share = () => {
     this.props.handleClose()
     this.props.onShare(this.state.peer.address)
+    this.savePeerToFriendsList(this.state.peer, false)
   }
 
   onKeyDown = (e) => {
@@ -50,11 +52,22 @@ class ShareMenu extends React.Component {
     this.setPeer(new Peer('', address))
   }
 
+  savePeerToFriendsList = (peer: Peer, override: boolean) => {
+    const keyValue = OrbitDbProvider.getOwnKeyValue()
+    if (!keyValue) return
+
+    if (!override && !this.isEmpty(keyValue.get(peer.address))) return
+    keyValue.put(peer.address, peer.name)
+      .then(console.log('Friend saved: {name: "' + peer.name + '", address: "' + peer.address + '"}'))
+  }
+
   peerAddressIsValid = () => !this.peerAddressIsEmpty() && this.peerAddressHasValidPattern()
 
   peerAddressIsEmpty = () => this.state.peer.address.trim() === ''
 
   peerAddressHasValidPattern = () => this.state.peer.address.startsWith('/orbitdb/') && this.state.peer.address.endsWith('/shared_feed')
+
+  isEmpty = (obj) => obj === undefined || (obj && Object.keys(obj).length === 0 && obj.constructor === Object)
 
   render () {
     const { t, translateX, translateY, className } = this.props
@@ -78,7 +91,7 @@ class ShareMenu extends React.Component {
             <Button bg='bg-navy' color='white' className='f6 flex justify-center items-center mt1 w-100' onClick={this.share} disabled={!this.peerAddressIsValid() }>{t('terms.send')}</Button>
           </div>
           <div className={'p-3 bg-snow-muted'}>
-            <PeerList setPeer={this.setPeer}/>
+            <PeerList setPeer={this.setPeer} savePeerToFriendsList={this.savePeerToFriendsList} />
           </div>
         </DropdownMenu>
       </Dropdown>

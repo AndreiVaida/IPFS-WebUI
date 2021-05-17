@@ -492,6 +492,7 @@ const actions = {
       async function initOrbitDbKeyValueStore (orbitDb) {
         const orbitDbOwnKeyValueStore = await orbitDb.keyvalue(ORBIT_DB_KEY_VALUE_ADDRESS, orbitDbOptionsOwner)
         await orbitDbOwnKeyValueStore.load()
+        OrbitDbProvider.setOwnKeyValue(orbitDbOwnKeyValueStore)
         console.info('OrbitDB KeyValue Store is ready')
       }
     }

@@ -11,6 +11,8 @@ let orbitDb
 let orbitDbOwnFeedStore
 /** @type IPFSService */
 let ipfsService
+/** @type KeyValueStore */
+let orbitDbOwnKeyValueStore
 
 /**
  * Provider for OrbitDb instances.
@@ -63,6 +65,18 @@ export const OrbitDbProvider = {
   setOwnFeed: (ownFeedStore) => {
     orbitDbOwnFeedStore = ownFeedStore
     MessageService.sendMessage(MessageType.DATABASE_INIT, orbitDbOwnFeedStore)
+  },
+
+  /**
+   * @return {KeyValueStore}
+   */
+  getOwnKeyValue: () => orbitDbOwnKeyValueStore,
+  /**
+   * Set the own KeyValue Store database.
+   * @param {KeyValueStore} ownKeyValueStore
+   */
+  setOwnKeyValue: (ownKeyValueStore) => {
+    orbitDbOwnKeyValueStore = ownKeyValueStore
   },
 
   /**

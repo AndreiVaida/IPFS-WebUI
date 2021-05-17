@@ -3,8 +3,9 @@ import PropTypes from 'prop-types'
 import { withTranslation } from 'react-i18next'
 import Peer from './Peer'
 import { MessageService, MessageType } from '../../notification/MessageService'
+import { OrbitDbProvider } from '../../bundles/orbitdb-provider'
 
-const PeerList = ({ t, className, setPeer }) => {
+const PeerList = ({ t, className, setPeer, savePeerToFriendsList }) => {
   const [peers, setPeers] = useState([])
   const [peerNameInput, setPeerNameInput] = useState('')
   const [subscription, setSubscription] = useState(null)
@@ -20,8 +21,14 @@ const PeerList = ({ t, className, setPeer }) => {
   }, [])
 
   const loadPeers = () => {
-    setPeers([new Peer('da', '/orbitdb/zdpuAwzswGhtwqHAGvHz77Xq9szcmUw8sC7s8Jz52xWcQ4Lhs/shared_feed'),
-      new Peer('', '/orbitdb/zdpuAwzswGhtwqHAGvHz77Xq9szcmUw8sC7s8Jz52xWcQ4Ldf/shared_feed')])
+    const keyValue = OrbitDbProvider.getOwnKeyValue()
+    if (!keyValue || isEmpty(keyValue.all)) return
+    const all = keyValue.all
+    const peers = []
+    for (const address in all) {
+      peers.push(new Peer(all[address], address))
+    }
+    setPeers(peers)
   }
 
   const subscribeToSearchPeer = () => {
@@ -64,24 +71,35 @@ const PeerList = ({ t, className, setPeer }) => {
 
   const onClickDelete = (peerToDelete: Peer) => {
     setPeers(peers.filter(peer => peer.address !== peerToDelete.address))
+    deletePeerFromFriendsList(peerToDelete)
   }
 
   const onNameInputKeyDown = (e, peer: Peer) => {
     if (e.key === 'Enter') {
       peer.name = peerNameInput
       peer.inEditMode = false
+      savePeerToFriendsList(peer, true)
     }
     if (e.key === 'Escape') {
       onClickEdit(peer)
     }
   }
 
-  function isPartOfFilter (peer) {
+  const isPartOfFilter = (peer) => {
     if (searchedPeer.trim().length === 0) return true
 
     return peer.name.toLowerCase().includes(searchedPeer.toLowerCase()) ||
       peer.address.toLowerCase().includes(searchedPeer.toLowerCase())
   }
+
+  const deletePeerFromFriendsList = (peerToDelete: Peer) => {
+    const keyValue = OrbitDbProvider.getOwnKeyValue()
+    if (!keyValue) return
+    keyValue.del(peerToDelete.address)
+      .then(console.log('Friend deleted: {name: "' + peerToDelete.name + '", address: "' + peerToDelete.address + '"}'))
+  }
+
+  const isEmpty = (obj) => obj && Object.keys(obj).length === 0 && obj.constructor === Object
 
   return (
     <div className={className}>
@@ -92,7 +110,7 @@ const PeerList = ({ t, className, setPeer }) => {
             ? <div className={'gray'}>{t('terms.noFriends')}</div>
             : peers.map((peer, index) => {
               if (isPartOfFilter(peer)) {
-                return <div id={peer.address} className={'hover-bg-transparent-blue clickable pt1 pb2 pr1 pl1 border-top flex center-container '}>
+                return <div key={peer.address} className={'hover-bg-transparent-blue clickable pt1 pb2 pr1 pl1 border-top flex center-container '}>
                   <div role={'button'} tabIndex={index} onClick={() => onClickPeer(peer)} onKeyPress={e => onKeyPressPeer(e, peer)}>
                     {
                       peer.inEditMode
