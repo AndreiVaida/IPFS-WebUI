@@ -5,6 +5,7 @@ import { withTranslation } from 'react-i18next'
 import Button from '../../components/button/Button'
 import PeerList from '../peer-list/PeerList'
 import Peer from '../peer-list/Peer'
+import { MessageService, MessageType } from '../../notification/MessageService'
 
 class ShareMenu extends React.Component {
   constructor (props) {
@@ -31,6 +32,7 @@ class ShareMenu extends React.Component {
     this.setState({
       peer: peer
     })
+    MessageService.sendMessage(MessageType.SEARCH_PEER, peer.address)
   }
 
   share = () => {
@@ -46,7 +48,6 @@ class ShareMenu extends React.Component {
 
   onPeerAddressChanged = (address) => {
     this.setPeer(new Peer('', address))
-    // todo: notify the list
   }
 
   peerAddressIsValid = () => !this.peerAddressIsEmpty() && this.peerAddressHasValidPattern()

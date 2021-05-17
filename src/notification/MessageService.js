@@ -10,12 +10,13 @@ export const MessageService = {
    */
   sendMessage: (type, data) => subject.next({ type: type, data: data }),
   /**
-   * @return {Observable<any>} observable stream with all messages
+   * @return {Observable<{ type: MessageType, data: any }>} observable stream with all messages
    */
   getMessages: () => subject.asObservable()
 }
 
 export const MessageType = {
   DATABASE_INIT: 'database_init',
-  CONTENT_RECEIVED: 'content_received'
+  CONTENT_RECEIVED: 'content_received',
+  SEARCH_PEER: 'search_peer'
 }
