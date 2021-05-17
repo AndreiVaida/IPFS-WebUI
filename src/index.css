@@ -47,6 +47,18 @@ html, body, #root {
   filter: invert(48%) sepia(13%) saturate(3207%) hue-rotate(130deg) brightness(95%) contrast(80%);
 }
 
+.red-hover:hover {
+  filter: invert(48%) sepia(13%) saturate(3207%) hue-rotate(300deg) brightness(95%) contrast(80%);
+}
+
+.blue-hover:hover {
+  filter: invert(48%) sepia(13%) saturate(3207%) hue-rotate(160deg) brightness(95%) contrast(80%);
+}
+
+.transparent-25 {
+  filter: opacity(25%);
+}
+
 .hover-bg-transparent-blue:hover {
   background-color: rgba(11, 58, 83, 0.05);
 }
@@ -62,8 +74,26 @@ html, body, #root {
   margin: auto;
 }
 
+.text-center {
+  text-align: center;
+}
+
 .p-3 {
   padding: 20px;
+}
+
+.border-top {
+  border-top: #eee;
+  border-width: 1px;
+  border-top-style: solid;
+}
+
+.w2_5 {
+  width: 2.5rem;
+}
+
+.bold {
+  font-weight: bold;
 }
 
 .animated-background-bright {
