@@ -98,7 +98,7 @@ html, body, #root {
 
 .animated-background-bright {
   animation-name: animated-background-color;
-  animation-duration: 4s;
+  animation-duration: 2s;
   animation-iteration-count: infinite;
 }
 

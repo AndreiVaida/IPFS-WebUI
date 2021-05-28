@@ -1,12 +1,12 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-export const Definition = ({ term, desc, advanced, termWidth, descriptionClassName }) => (
+export const Definition = ({ term, desc, advanced, termWidth, descriptionClassName, descriptionTitle }) => (
   <div className={'dt dt--fixed pt1 mw9 lh-copy'}>
     <Term width={termWidth}>
       {term}
     </Term>
-    <Description advanced={advanced} className={descriptionClassName}>
+    <Description advanced={advanced} className={descriptionClassName} title={descriptionTitle}>
       {desc}
     </Description>
   </div>
@@ -27,9 +27,9 @@ export const Term = ({ children, width = 100 }) => {
   )
 }
 
-export const Description = ({ children, advanced, className }) => {
+export const Description = ({ children, advanced, className, title }) => {
   return (
-    <dd className={`db dtc-ns ma0 charcoal monospace ${advanced ? 'word-wrap pa2 f7 bg-white-80' : 'truncate f7 f6-ns'} ${className}`}>
+    <dd className={`db dtc-ns ma0 charcoal monospace ${advanced ? 'word-wrap pa2 f7 bg-white-80' : 'truncate f7 f6-ns'} ${className}`} title={title}>
       {children}
     </dd>
   )

@@ -52,6 +52,7 @@
     "changeName": "Change name",
     "blocks": "Blocks",
     "connection": "Connection",
+    "copyThisLine": "Copy this line",
     "deleteFriend": "Remove from friends",
     "downSpeed": "Incoming",
     "enterDbAddress": "Paste your friend's DB ADDRESS or start typing his/her name",
