@@ -57,6 +57,9 @@ const PeerList = ({ t, className, setPeer, savePeerToFriendsList }) => {
     setPeerNameInput(peerToEdit.name)
     setPeers(peers.map(peer => {
       if (peer.address === peerToEdit.address) {
+        if (peer.inEditMode && peer.name !== peerNameInput) {
+          updatePeerName(peer)
+        }
         peer.inEditMode = !peer.inEditMode
       } else {
         peer.inEditMode = false
@@ -74,14 +77,21 @@ const PeerList = ({ t, className, setPeer, savePeerToFriendsList }) => {
     deletePeerFromFriendsList(peerToDelete)
   }
 
+  const updatePeerName = (peer) => {
+    peer.name = peerNameInput
+    savePeerToFriendsList(peer, true)
+  }
+
   const onNameInputKeyDown = (e, peer: Peer) => {
     if (e.key === 'Enter') {
-      peer.name = peerNameInput
       peer.inEditMode = false
-      savePeerToFriendsList(peer, true)
+      updatePeerName(peer)
     }
     if (e.key === 'Escape') {
-      onClickEdit(peer)
+      setPeers(peers.map(peer => {
+        peer.inEditMode = false
+        return peer
+      }))
     }
   }
 
