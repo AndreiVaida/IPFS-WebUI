@@ -79,7 +79,7 @@ export const ACTIONS = Enum.from([
   'NOTIFY_DISMISSED'
 ])
 
-const ORBIT_DB_FEED_ADDRESS = 'shared_feed'
+const ORBIT_DB_FEED_NAME = 'shared_feed'
 const ORBIT_DB_KEY_VALUE_ADDRESS = 'shared_keyValue'
 
 /**
@@ -477,7 +477,9 @@ const actions = {
        * @return {Promise<void>} when operation completes
        */
       async function initOrbitDbFeedStore (orbitDb) {
-        const orbitDbOwnFeedStore = await orbitDb.feed(ORBIT_DB_FEED_ADDRESS, orbitDbOptionsOwner)
+        const feedOptions = { ...orbitDbOptionsOwner, type: 'feed', create: true }
+        const orbitDbOwnFeedStore = await orbitDb.open(ORBIT_DB_FEED_NAME, feedOptions)
+        // await orbitDbOwnFeedStore.drop()
         await orbitDbOwnFeedStore.load()
         OrbitDbProvider.setOwnFeed(orbitDbOwnFeedStore)
         OrbitDbProvider.subscribeToOrbitDbEvents(orbitDbOwnFeedStore)

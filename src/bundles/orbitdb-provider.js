@@ -206,6 +206,7 @@ const SHARED_FOLDER = 'Shared with me'
 export const orbitDbOptionsOwner = {
   overwrite: false,
   replicate: true,
+  localOnly: false,
   accessController: {
     type: 'orbitdb',
     write: ['*']
