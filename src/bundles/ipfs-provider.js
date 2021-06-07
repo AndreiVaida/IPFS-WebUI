@@ -479,6 +479,8 @@ const actions = {
       async function initOrbitDbFeedStore (orbitDb) {
         const feedOptions = { ...orbitDbOptionsOwner, type: 'feed', create: true }
         const orbitDbOwnFeedStore = await orbitDb.open(ORBIT_DB_FEED_NAME, feedOptions)
+        await orbitDbOwnFeedStore.access.grant('write', '*')
+        await orbitDbOwnFeedStore.access.grant('write', ['*'])
         // await orbitDbOwnFeedStore.drop()
         await orbitDbOwnFeedStore.load()
         OrbitDbProvider.setOwnFeed(orbitDbOwnFeedStore)
