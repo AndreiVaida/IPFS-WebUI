@@ -32,7 +32,8 @@ export const OrbitDbProvider = {
    * @throws an error if cannot connect to the DB
    */
   connectToFeed: async (address) => {
-    const feedStore = await orbitDb.feed(address, orbitDbOptionsParticipant)
+    const feedOptions = { ...orbitDbOptionsOwner, type: 'feed', create: true }
+    const feedStore = await orbitDb.open(address, feedOptions)
     OrbitDbProvider.subscribeToOrbitDbEvents(feedStore)
     await feedStore.load()
     return feedStore
@@ -206,6 +207,7 @@ const SHARED_FOLDER = 'Shared with me'
 export const orbitDbOptionsOwner = {
   overwrite: false,
   replicate: true,
+  localOnly: false,
   accessController: {
     type: 'orbitdb',
     write: ['*']
