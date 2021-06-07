@@ -101,34 +101,32 @@ export const OrbitDbProvider = {
     })
     databaseInstance.events.on('write', (address, entry, heads) => {
       const fileAsString = entry.payload.value
+      console.log('> write { address: ' + address + ', file: ' + fileAsString)
+
       const file = JSON.parse(fileAsString)
       const hash = entry.hash
-      const willImport = file.downloaded !== true
 
-      console.log('> write { address: ' + address + ', file: ' + fileAsString + ' } | willImport=' + willImport)
-      if (!willImport) return
-
-      importFileAndMarkDownloaded(file, hash)
+      importFileAndRemoveFromDb(file, hash)
     })
   }
 }
 
 /**
- * Imports the file to MFS and marks it downloaded in the Feed database.
- * @param {{cid: String, name: String, downloaded: boolean|undefined}} file - the content to add to MFS
+ * Imports the file to MFS and, if succeeded, removes it from the Feed database.
+ * @param {{cid: String, name: String}} file - the content to add to MFS
  * @param {string} hash - the hash of the file in own Feed database
  */
-const importFileAndMarkDownloaded = async (file, hash) => {
+const importFileAndRemoveFromDb = async (file, hash) => {
   importFileToShareFolder(file)
     .then(success => {
       if (!success) return
-      markContentAsDownloaded(file, hash)
+      orbitDbOwnFeedStore.remove(hash)
     })
 }
 
 /**
  * Download the file to local IPFS in the shared folder.
- * @param {{cid: String, name: String, downloaded: boolean|undefined}} file - the content to add to MFS
+ * @param {{cid: String, name: String}} file - the content to add to MFS
  */
 const importFileToShareFolder = async (file) => {
   await createFolderIfNotExist('/', SHARED_FOLDER)
@@ -171,34 +169,21 @@ const createFolderIfNotExist = async (root, folderName) => {
 }
 
 /**
- * Adds a boolean attribute named 'downloaded' in the file and saves it to own feed database.
- * Deletes the file with the provided hash.
- * @param {{cid: String, name: String, downloaded: boolean|undefined}} file - a file from database
- * @param {string} hash - the hash of the file in own Feed database
- */
-const markContentAsDownloaded = async (file, hash) => {
-  file.downloaded = true
-  await orbitDbOwnFeedStore.remove(hash)
-  await orbitDbOwnFeedStore.add(file)
-}
-
-/**
- * Import to MFS all the file from the Feed database whose 'downloaded' attribute is not true.
+ * Import to MFS all the file from the Feed database.
  */
 const importNotDownloadedFiles = async () => {
-  const notDownloadedFiles = orbitDbOwnFeedStore.iterator({ limit: -1 })
+  const files = orbitDbOwnFeedStore.iterator({ limit: -1 })
     .collect()
     .map((entry) => {
       const file = JSON.parse(entry.payload.value)
       file.hash = entry.hash
       return file
     })
-    .filter(file => file.downloaded !== true)
 
-  console.log('Found ' + notDownloadedFiles.length + ' not downloaded files: ' + JSON.stringify(notDownloadedFiles))
+  console.log('Found ' + files.length + ' not downloaded files: ' + JSON.stringify(files))
 
-  for (const fileWithHash of notDownloadedFiles) {
-    importFileAndMarkDownloaded(fileWithHash, fileWithHash.hash)
+  for (const fileWithHash of files) {
+    importFileAndRemoveFromDb(fileWithHash, fileWithHash.hash)
   }
 }
 
