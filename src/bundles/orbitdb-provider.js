@@ -32,9 +32,9 @@ export const OrbitDbProvider = {
    * @throws an error if cannot connect to the DB
    */
   connectToFeed: async (address) => {
-    const feedOptions = { ...orbitDbOptionsOwner, type: 'feed', create: true }
+    const feedOptions = { ...orbitDbOptionsParticipant, type: 'feed' }
     const feedStore = await orbitDb.open(address, feedOptions)
-    OrbitDbProvider.subscribeToOrbitDbEvents(feedStore)
+    OrbitDbProvider.subscribeToOrbitDbEvents(feedStore, true)
     await feedStore.load()
     return feedStore
   },
@@ -84,24 +84,28 @@ export const OrbitDbProvider = {
    * Subscribes to relevant events regarding connecting & retrieving data for provided database and logs the events.
    * Useful for debugging.
    * @param {FeedStore|KeyValueStore} databaseInstance - any OrbitDb database instance
+   * @param {boolean} readonly - if set to true it only logs events in console, if set to false it imports and removes data at specific events
    */
-  subscribeToOrbitDbEvents: (databaseInstance) => {
+  subscribeToOrbitDbEvents: (databaseInstance, readonly = false) => {
+    const readonlyMessage = readonly ? ' [readonly]' : ''
     databaseInstance.events.on('replicated', address => {
-      console.log('> replicated: ' + address)
+      console.log('> replicated: ' + address + readonlyMessage)
     })
     databaseInstance.events.on('replicate', address => {
-      console.log('> replicated: ' + address)
+      console.log('> replicated: ' + address + readonlyMessage)
+      if (readonly) return
       importNotDownloadedFiles()
     })
     databaseInstance.events.on('peer', peer => {
-      console.log('> peer connected: ' + peer)
+      console.log('> peer connected: ' + peer + readonlyMessage)
     })
     databaseInstance.events.on('peer.exchanged', (peer, address, heads) => {
-      console.log('> peer.exchanged: {peer: ' + peer + ', address: ' + address, ', heads: ' + heads + '}')
+      console.log('> peer.exchanged: {peer: ' + peer + ', address: ' + address, ', heads: ' + heads + '}' + readonlyMessage)
     })
     databaseInstance.events.on('write', (address, entry, heads) => {
       const fileAsString = entry.payload.value
-      console.log('> write { address: ' + address + ', file: ' + fileAsString)
+      console.log('> write { address: ' + address + ', file: ' + fileAsString + readonlyMessage)
+      if (readonly) return
 
       const file = JSON.parse(fileAsString)
       const hash = entry.hash
