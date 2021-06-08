@@ -90,11 +90,11 @@ export const OrbitDbProvider = {
     const readonlyMessage = readonly ? ' [readonly]' : ''
     databaseInstance.events.on('replicated', address => {
       console.log('> replicated: ' + address + readonlyMessage)
-    })
-    databaseInstance.events.on('replicate', address => {
-      console.log('> replicated: ' + address + readonlyMessage)
       if (readonly) return
       importNotDownloadedFiles()
+    })
+    databaseInstance.events.on('replicate', address => {
+      console.log('> replicate: ' + address + readonlyMessage)
     })
     databaseInstance.events.on('peer', peer => {
       console.log('> peer connected: ' + peer + readonlyMessage)
