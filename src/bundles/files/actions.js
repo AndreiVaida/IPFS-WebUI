@@ -334,6 +334,7 @@ const actions = () => ({
       const feedStore = await OrbitDbProvider.connectToFeed(address)
       console.log('Connected to feed: ' + feedStore.address)
       const fileHash = addFileToOrbitDbFeed(feedStore, file)
+      console.log('Content added: ' + fileHash)
       return Promise.resolve(fileHash)
     } catch (e) {
       console.error('Cannot connect to OrbitDB Feed ' + address)

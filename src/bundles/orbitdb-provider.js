@@ -32,8 +32,9 @@ export const OrbitDbProvider = {
    * @throws an error if cannot connect to the DB
    */
   connectToFeed: async (address) => {
-    const feedStore = await orbitDb.feed(address, orbitDbOptionsParticipant)
-    OrbitDbProvider.subscribeToOrbitDbEvents(feedStore)
+    const feedOptions = { ...orbitDbOptionsParticipant, type: 'feed' }
+    const feedStore = await orbitDb.open(address, feedOptions)
+    OrbitDbProvider.subscribeToOrbitDbEvents(feedStore, true)
     await feedStore.load()
     return feedStore
   },
@@ -83,51 +84,53 @@ export const OrbitDbProvider = {
    * Subscribes to relevant events regarding connecting & retrieving data for provided database and logs the events.
    * Useful for debugging.
    * @param {FeedStore|KeyValueStore} databaseInstance - any OrbitDb database instance
+   * @param {boolean} readonly - if set to true it only logs events in console, if set to false it imports and removes data at specific events
    */
-  subscribeToOrbitDbEvents: (databaseInstance) => {
+  subscribeToOrbitDbEvents: (databaseInstance, readonly = false) => {
+    const readonlyMessage = readonly ? ' [readonly]' : ''
     databaseInstance.events.on('replicated', address => {
-      console.log('> replicated: ' + address)
-    })
-    databaseInstance.events.on('replicate', address => {
-      console.log('> replicated: ' + address)
+      console.log('> replicated: ' + address + readonlyMessage)
+      if (readonly) return
       importNotDownloadedFiles()
     })
+    databaseInstance.events.on('replicate', address => {
+      console.log('> replicate: ' + address + readonlyMessage)
+    })
     databaseInstance.events.on('peer', peer => {
-      console.log('> peer connected: ' + peer)
+      console.log('> peer connected: ' + peer + readonlyMessage)
     })
     databaseInstance.events.on('peer.exchanged', (peer, address, heads) => {
-      console.log('> peer.exchanged: {peer: ' + peer + ', address: ' + address, ', heads: ' + heads + '}')
+      console.log('> peer.exchanged: {peer: ' + peer + ', address: ' + address, ', heads: ' + heads + '}' + readonlyMessage)
     })
     databaseInstance.events.on('write', (address, entry, heads) => {
       const fileAsString = entry.payload.value
+      console.log('> write { address: ' + address + ', file: ' + fileAsString + readonlyMessage)
+      if (readonly) return
+
       const file = JSON.parse(fileAsString)
       const hash = entry.hash
-      const willImport = file.downloaded !== true
 
-      console.log('> write { address: ' + address + ', file: ' + fileAsString + ' } | willImport=' + willImport)
-      if (!willImport) return
-
-      importFileAndMarkDownloaded(file, hash)
+      importFileAndRemoveFromDb(file, hash)
     })
   }
 }
 
 /**
- * Imports the file to MFS and marks it downloaded in the Feed database.
- * @param {{cid: String, name: String, downloaded: boolean|undefined}} file - the content to add to MFS
+ * Imports the file to MFS and, if succeeded, removes it from the Feed database.
+ * @param {{cid: String, name: String}} file - the content to add to MFS
  * @param {string} hash - the hash of the file in own Feed database
  */
-const importFileAndMarkDownloaded = async (file, hash) => {
+const importFileAndRemoveFromDb = async (file, hash) => {
   importFileToShareFolder(file)
     .then(success => {
       if (!success) return
-      markContentAsDownloaded(file, hash)
+      orbitDbOwnFeedStore.remove(hash)
     })
 }
 
 /**
  * Download the file to local IPFS in the shared folder.
- * @param {{cid: String, name: String, downloaded: boolean|undefined}} file - the content to add to MFS
+ * @param {{cid: String, name: String}} file - the content to add to MFS
  */
 const importFileToShareFolder = async (file) => {
   await createFolderIfNotExist('/', SHARED_FOLDER)
@@ -170,34 +173,21 @@ const createFolderIfNotExist = async (root, folderName) => {
 }
 
 /**
- * Adds a boolean attribute named 'downloaded' in the file and saves it to own feed database.
- * Deletes the file with the provided hash.
- * @param {{cid: String, name: String, downloaded: boolean|undefined}} file - a file from database
- * @param {string} hash - the hash of the file in own Feed database
- */
-const markContentAsDownloaded = async (file, hash) => {
-  file.downloaded = true
-  await orbitDbOwnFeedStore.remove(hash)
-  await orbitDbOwnFeedStore.add(file)
-}
-
-/**
- * Import to MFS all the file from the Feed database whose 'downloaded' attribute is not true.
+ * Import to MFS all the file from the Feed database.
  */
 const importNotDownloadedFiles = async () => {
-  const notDownloadedFiles = orbitDbOwnFeedStore.iterator({ limit: -1 })
+  const files = orbitDbOwnFeedStore.iterator({ limit: -1 })
     .collect()
     .map((entry) => {
       const file = JSON.parse(entry.payload.value)
       file.hash = entry.hash
       return file
     })
-    .filter(file => file.downloaded !== true)
 
-  console.log('Found ' + notDownloadedFiles.length + ' not downloaded files: ' + JSON.stringify(notDownloadedFiles))
+  console.log('Found ' + files.length + ' not downloaded files: ' + JSON.stringify(files))
 
-  for (const fileWithHash of notDownloadedFiles) {
-    importFileAndMarkDownloaded(fileWithHash, fileWithHash.hash)
+  for (const fileWithHash of files) {
+    importFileAndRemoveFromDb(fileWithHash, fileWithHash.hash)
   }
 }
 
@@ -206,6 +196,7 @@ const SHARED_FOLDER = 'Shared with me'
 export const orbitDbOptionsOwner = {
   overwrite: false,
   replicate: true,
+  localOnly: false,
   accessController: {
     type: 'orbitdb',
     write: ['*']
