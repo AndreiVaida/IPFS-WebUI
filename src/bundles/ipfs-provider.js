@@ -480,8 +480,7 @@ const actions = {
         const feedOptions = { ...orbitDbOptionsOwner, type: 'feed', create: true }
         const orbitDbOwnFeedStore = await orbitDb.open(ORBIT_DB_FEED_NAME, feedOptions)
         await orbitDbOwnFeedStore.access.grant('write', '*')
-        await orbitDbOwnFeedStore.access.grant('write', ['*'])
-        // await orbitDbOwnFeedStore.drop()
+        await orbitDbOwnFeedStore.access.grant('write', ['*']) // todo: these 2 lines are just experimental; they can be removed in the future
         await orbitDbOwnFeedStore.load()
         OrbitDbProvider.setOwnFeed(orbitDbOwnFeedStore)
         OrbitDbProvider.subscribeToOrbitDbEvents(orbitDbOwnFeedStore)
