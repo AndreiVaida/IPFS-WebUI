@@ -22,6 +22,6 @@ export default createRouteBundle({
   '/welcome': WelcomePage,
   '/blank': BlankPage,
   '/status*': StatusPage,
-  '/': StatusPage,
-  '': StatusPage
+  '/': WelcomePage,
+  '': WelcomePage
 }, { routeInfoSelector: 'selectHash' })

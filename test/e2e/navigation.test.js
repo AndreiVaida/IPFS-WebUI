@@ -16,7 +16,7 @@ describe('Navigation menu', () => {
   })
 
   it('should work for Status page', async () => {
-    const link = 'a[href="#/"]'
+    const link = 'a[href="#/Status"]'
     await page.waitForSelector(link)
     await expect(page).toMatch('Status')
     await page.click(link)
