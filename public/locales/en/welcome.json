@@ -18,6 +18,13 @@
     "paragraph4": "<0><0>A next-gen CDN</0> — just add a file to your node to make it available to the world with cache-friendly content-hash addressing and BitTorrent-style bandwidth distribution</0>",
     "paragraph5": "<0><0>A developer toolset</0> for building <2>completely distributed apps and services</2>, backed by a robust open-source community</0>"
   },
+  "aboutIpfsNewcomers": {
+    "header1": "Wait, what is InterPlanetary File System?",
+    "header2": "IPFS is a new protocol for content distributed all over the internet, designed to make the web faster, safer and more open. Three main principles are proposed: decentralization, content addressing and participation:",
+    "paragraph1": "<0>Data is distributed directly from other people's computers to yours (and vice-versa). There are no servers.<1>Thus, the storage in IPFS in free and unlimited! (until your drive gets full)<br/>Pay attention that yours and your friend's computer must be connected to IPFS in order to exchange data.</1></0>",
+    "paragraph2": "<0>A file is uniquely identified by its content itself, not by an address. CID is used instead of URL.<1>If you change even a letter in a file, IPFS will instantly identify it as a different file.<br/>Content is splitted in chunks that can be downloaded and uploaded independently.</1></0>",
+    "paragraph3": "<0>Peers can retrieve content from anyone who has it.<1>Movies and other content is downloaded from your neighbors faster than from a congested server on another continent.<br/>Your computer automatically uploads (only imported) content to others, when they ask for it.</1></0>"
+  },
   "welcomeInfo": {
     "header": "In this app, you can …",
     "paragraph1": "<0><0>Check your node status</0>, including how many peers you're connected to, your storage and bandwidth stats, and more</0>",
@@ -27,12 +34,22 @@
     "paragraph5": "<0><0>Review or edit your node settings</0> — no command line required</0>",
     "paragraph6": "<0><0>Check this app's source code</0> to <2>report a bug</2> or make a contribution, and make IPFS better for everyone!</0>"
   },
+  "welcomeInfoNewcomers": {
+    "salutation": "Hey, I'm glad to see you!",
+    "header": "Here's what you'll do with this app:",
+    "paragraph1": "<0>Add any Files and Folders in a space-efficient way<1>IPFS has data deduplication embedded, so your disk will fill slower.</1></0>",
+    "paragraph2": "<0>Send Content to other peers instantly<1>Just click the Share button on the file/folder, enter/select the peer's address and click Send.<br/>The content will be sent directly without servers (if its computer is connected).</1></0>",
+    "paragraph3": "<0>Receive Content from other peers instantly<1>Copy and send your <i>DB ADDRESS</i> to your friends so they can share content to you.<br/>When someone sends a file/folder to you, the content will appear in the <i>\"Shared with me\"</i> folder.<br/><i>PS: Your address is shown in the STATUS page</i></1></0>",
+    "paragraph4": "<0>Manage your Friends list<1>The peer's DB ADDRESS will be saved in your Friends list after sharing content to them.<br/>Click the Share button again and assign a name to your friend by clicking the Edit pen icon!</1></0>",
+    "finalNote": "<0>► Let's get started by importing a file! ◄<2>(click the blinking FILES icon to start)</1><1>Note: This is the official app of IPFS. Andrei Vaida added the Share functionality (i.e. points 2,3 and 4).</1></0>"
+  },
   "tour": {
     "step1": {
       "title": "Welcome page",
       "paragraph1": "This page lets you know if you're connected to IPFS, and offers ideas for things you can do in this app.",
       "paragraph2": "If you aren't connected to the IPFS API, this page also appears in place of some other pages, with hints for how to get connected.",
-      "paragraph3": "You can visit this page from anywhere in the app by clicking the IPFS cube logo in the navigation bar."
+      "paragraph3": "You can visit this page from anywhere in the app by clicking the IPFS cube logo in the navigation bar.",
+      "advancedDetails": "More advanced details:"
     }
   }
 }
