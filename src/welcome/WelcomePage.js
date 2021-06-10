@@ -13,6 +13,8 @@ import IsNotConnected from '../components/is-not-connected/IsNotConnected'
 import AboutIpfs from '../components/about-ipfs/AboutIpfs'
 import AboutWebUI from '../components/about-webui/AboutWebUI'
 import ComponentLoader from '../loader/ComponentLoader.js'
+import AboutWebUiForNewcomers from '../components/about-webui/AboutWebUiForNewcomers'
+import { AboutIpfsForNewcomers } from '../components/about-ipfs/AboutIpfsForNewcomers'
 
 const WelcomePage = ({ t, apiUrl, ipfsInitFailed, ipfsConnected, ipfsReady, toursEnabled, handleJoyrideCallback }) => {
   if (!ipfsInitFailed && !ipfsReady) {
@@ -45,6 +47,19 @@ const ConnectionStatus = ({ t, connected, sameOrigin }) => {
     return (
       <div>
         <IsConnected />
+
+        <div className='flex-ns mt3'>
+          <div className='mid-gray w-100-ns'>
+            <AboutWebUiForNewcomers />
+          </div>
+        </div>
+        <div className='flex-ns mt3'>
+          <div className='mid-gray w-100-ns'>
+            <AboutIpfsForNewcomers />
+          </div>
+        </div>
+
+        <div className={'mt4 text-center'}>More advanced details:</div>
         <div className='flex-ns mt3'>
           <div className='mr3-ns lh-copy mid-gray w-50-ns'>
             <AboutWebUI />
