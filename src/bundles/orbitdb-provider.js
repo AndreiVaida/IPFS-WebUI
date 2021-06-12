@@ -34,10 +34,16 @@ export const OrbitDbProvider = {
   connectToFeed: async (address) => {
     const feedOptions = { ...orbitDbOptionsParticipant, type: 'feed' }
     const feedStore = await orbitDb.open(address, feedOptions)
-    OrbitDbProvider.subscribeToOrbitDbEvents(feedStore, true)
+    const readonly = OrbitDbProvider.getOwnFeedAddress() !== address
+    OrbitDbProvider.subscribeToOrbitDbEvents(feedStore, readonly)
     await feedStore.load()
     return feedStore
   },
+
+  /**
+   * @returns {string} address of own Feed Database
+   */
+  getOwnFeedAddress: () => orbitDbOwnFeedStore.address.toString(),
 
   /**
    * Set the ipfs service used to update the local repository.
